@@ -323,6 +323,7 @@ ICMP PACKET DETAILS
     // Calculate timestamp in human-readable form
     ube32_t timestamp = icmp_packet->icmp_echo_hdr.timestamp;
     ube32_t timestamp_ms = icmp_packet->icmp_echo_hdr.timestamp_ms;
+    
     time_t raw_time = (time_t)timestamp;
     struct tm *time_info = localtime(&raw_time);
     char formatted_time[50];
@@ -333,7 +334,7 @@ ICMP PACKET DETAILS
     printf("checksum: 0x%04x\n", icmp_packet->icmp_echo_hdr.icmp_hdr.checksum);
     printf("id: 0x%04x\n", icmp_packet->icmp_echo_hdr.id);
     printf("sequence: 0x%04x\n", icmp_packet->icmp_echo_hdr.sequence);
-    printf("timestamp: %#x\n", icmp_packet->icmp_echo_hdr.timestamp);
+    printf("timestamp: %#x%x\n", icmp_packet->icmp_echo_hdr.timestamp, icmp_packet->icmp_echo_hdr.timestamp_ms);
     printf("payload: %u bytes \n", payload_size);
     printf("ECHO Timestamp: TS = %s.%05llu\n", formatted_time, timestamp_ms); 
     // print payload
