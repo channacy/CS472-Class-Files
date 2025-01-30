@@ -318,7 +318,7 @@ ICMP PACKET DETAILS
      payload:   48 bytes 
      ECHO Timestamp: TS = 2023-09-22 21:06:54.57804
  */
-   // We can calculate the payload size using a macro provided in packet.h. 
+   //We can calculate the payload size using a macro provided in packet.h. 
     uint16_t payload_size = ICMP_Payload_Size(icmp_packet);
     // Calculate timestamp in human-readable form
     ube32_t timestamp = icmp_packet->icmp_echo_hdr.timestamp;
@@ -371,7 +371,7 @@ ICMP PACKET DETAILS
  * 0x0028 | 0x30  0x31  0x32  0x33  0x34  0x35  0x36  0x37  
  */
 void print_icmp_payload(uint8_t *payload, uint16_t payload_size) {
-//function takes the payload, an array of bytes and outputs the data
+// function takes the payload, an array of bytes and outputs the data
     int line_length = 8;
     printf("OFFSET | CONTENTS\n");
     printf("-------------------------------------------------------\n");
