@@ -336,7 +336,7 @@ ICMP PACKET DETAILS
     printf("sequence: 0x%04x\n", icmp_packet->icmp_echo_hdr.sequence);
     printf("timestamp: %#x%x\n", icmp_packet->icmp_echo_hdr.timestamp, icmp_packet->icmp_echo_hdr.timestamp_ms);
     printf("payload: %u bytes \n", payload_size);
-    printf("ECHO Timestamp: TS = %s.%05llu\n", formatted_time, timestamp_ms); 
+    printf("ECHO Timestamp: TS = %s.%05llu\n\n", formatted_time, timestamp_ms); 
     // print payload
     print_icmp_payload(icmp_packet->icmp_payload, payload_size);
 }
@@ -374,6 +374,7 @@ ICMP PACKET DETAILS
 void print_icmp_payload(uint8_t *payload, uint16_t payload_size) {
 // function takes the payload, an array of bytes and outputs the data
     int line_length = 8;
+    printf("PAYLOAD\n\n");
     printf("OFFSET | CONTENTS\n");
     printf("-------------------------------------------------------\n");
 
@@ -387,5 +388,3 @@ void print_icmp_payload(uint8_t *payload, uint16_t payload_size) {
         }
     }
 }
-
-
