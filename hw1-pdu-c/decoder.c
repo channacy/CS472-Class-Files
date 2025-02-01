@@ -18,7 +18,11 @@
 test_packet_t TEST_CASES[] = {
     MAKE_PACKET(raw_packet_icmp_frame198),
     MAKE_PACKET(raw_packet_icmp_frame362),
-    MAKE_PACKET(raw_packet_arp_frame78)
+    MAKE_PACKET(raw_packet_arp_frame78),
+    MAKE_PACKET(raw_packet_arp_custom_frame1),
+    MAKE_PACKET(raw_packet_arp_custom_frame2),
+    MAKE_PACKET(raw_packet_icmp_custom_frame1),
+    MAKE_PACKET(raw_packet_icmp_custom_frame2),
 };
 
 // !!!!!!!!!!!!!!!!!!!!! WHAT YOU NEED TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -306,23 +310,20 @@ ICMP PACKET DETAILS
    //We can calculate the payload size using a macro provided in packet.h. 
     uint16_t payload_size = ICMP_Payload_Size(icmp_packet);
     // Calculate timestamp in human-readable form
-    ube32_t timestamp = icmp_packet->icmp_echo_hdr.timestamp;
-    ube32_t timestamp_ms = icmp_packet->icmp_echo_hdr.timestamp_ms;
-    
-    time_t raw_time = (time_t)timestamp;
+    time_t raw_time = (time_t)icmp_packet->icmp_echo_hdr.timestamp;
     struct tm *time_info = localtime(&raw_time);
     char formatted_time[50];
     strftime(formatted_time, sizeof(formatted_time), "%Y-%m-%d %H:%M:%S", time_info);
-    
+
     printf("ICMP Type %u\n", icmp_packet->icmp_echo_hdr.icmp_hdr.type);
     printf("ICMP PACKET DETAILS\n");
-    printf("type: 0x%02x\n", icmp_packet->ip.eth_hdr.frame_type);
+    printf("type: 0x%02x\n", icmp_packet->icmp_echo_hdr.icmp_hdr.type);
     printf("checksum: 0x%04x\n", icmp_packet->icmp_echo_hdr.icmp_hdr.checksum);
     printf("id: 0x%04x\n", icmp_packet->icmp_echo_hdr.id);
     printf("sequence: 0x%04x\n", icmp_packet->icmp_echo_hdr.sequence);
     printf("timestamp: %#x%x\n", icmp_packet->icmp_echo_hdr.timestamp, icmp_packet->icmp_echo_hdr.timestamp_ms);
     printf("payload: %u bytes \n", payload_size);
-    printf("ECHO Timestamp: TS = %s.%05llu\n\n", formatted_time, timestamp_ms); 
+    printf("ECHO Timestamp: TS = %s.%05u\n\n", formatted_time, icmp_packet->icmp_echo_hdr.timestamp_ms); 
     // print payload
     print_icmp_payload(icmp_packet->icmp_payload, payload_size);
 }
