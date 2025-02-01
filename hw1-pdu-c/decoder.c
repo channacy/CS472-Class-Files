@@ -132,6 +132,7 @@ arp_packet_t *process_arp(raw_packet_t raw_packet) {
     // ntohs() and/or ntohl()
     arp->arp_hdr.htype = ntohs(arp->arp_hdr.htype);
     arp->arp_hdr.ptype = ntohs(arp->arp_hdr.ptype);
+    arp->arp_hdr.op = ntohs(arp->arp_hdr.op);
     arp->eth_hdr.frame_type = ntohs(arp->eth_hdr.frame_type);
     return arp;
 }
@@ -142,7 +143,7 @@ arp_packet_t *process_arp(raw_packet_t raw_packet) {
  *  ARP_REQUEST or an ARP_RESPONSE
  */
 void print_arp(arp_packet_t *arp){
-//TODO:  take the arp parameter, of type arp_packet_t and print it out
+// Take the arp parameter, of type arp_packet_t and print it out
 //nicely.  My output looks like below, but you dont have to make it look
 //exactly like this, just something nice. 
 /*
@@ -160,41 +161,36 @@ ARP PACKET DETAILS
      tpa:       192.168.50.99 
      tha:       00:00:00:00:00:00 
  */
+
+    char *arp_op;
+    char spa[16];
+    char sha[18];
+    char tpa[16];
+    char tha[18];
+
+    // convert IPs and Macs to readable strings
+    ip_toStr(arp->arp_hdr.spa, spa, sizeof(spa));    
+    mac_toStr(arp->arp_hdr.sha, sha, sizeof(sha));
+    ip_toStr(arp->arp_hdr.tpa, tpa, sizeof(tpa));
+    mac_toStr(arp->arp_hdr.tha, tha, sizeof(tha));
+
+    // determine if ARP request or response
+    if (arp->arp_hdr.op == ARP_REQ_OP) {
+        arp_op = "ARP REQUEST";
+    } else if (arp->arp_hdr.op == ARP_RSP_OP) {
+        arp_op = "ARP RESPONSE";
+    }
+
     printf("ARP PACKET DETAILS\n");
-    printf("htype: 0x%04x\n", ntohs(arp->arp_hdr.htype));
-    printf("ptype: 0x%04x\n", ntohs(arp->arp_hdr.ptype));
+    printf("htype: 0x%04x\n", arp->arp_hdr.htype);
+    printf("ptype: 0x%04x\n", arp->arp_hdr.ptype);
     printf("hlen: %u\n", arp->arp_hdr.hlen);
     printf("plen: %u\n", arp->arp_hdr.plen);
-    printf("op: %u (ARP REQUEST)\n", ntohs(arp->arp_hdr.op));
-    printf("spa: ");
-    for (int i = 0; i < IP4_ALEN; i++) {
-        printf("%d", arp->arp_hdr.spa[i]);
-        if (i < IP4_ALEN - 1) {
-            printf(".");
-        }
-    }
-    printf("\n");
-    printf("sha: ");
-    for (int i = 0; i < ETH_ALEN; i++) {
-    printf("%02x", arp->arp_hdr.sha[i]);
-    if (i < ETH_ALEN - 1) 
-        printf(":");
-    };
-    printf("\n");
-    printf("tpa: ");
-    for (int i = 0; i < IP4_ALEN; i++) {
-        printf("%d", arp->arp_hdr.tpa[i]);
-        if (i < IP4_ALEN - 1) {
-            printf(".");
-        }
-    }
-    printf("\n");
-    printf("tha: ");
-    for (int i = 0; i < ETH_ALEN; i++) {
-        printf("%02x", arp->arp_hdr.tha[i]);
-        if (i < ETH_ALEN - 1) printf(":");
-    }
-    printf("\n");
+    printf("op: %u (%s)\n", arp->arp_hdr.op, arp_op);
+    printf("spa: %s\n", spa);
+    printf("sha: %s\n", sha);
+    printf("tpa: %s\n", tpa);
+    printf("tha: %s\n", tha);
 }
 
 /********************************************************************************/
@@ -277,7 +273,7 @@ icmp_echo_packet_t *process_icmp_echo(icmp_packet_t *icmp){
     echo->icmp_echo_hdr.timestamp = ntohl(echo->icmp_echo_hdr.timestamp);
     echo->icmp_echo_hdr.timestamp_ms = ntohl(echo->icmp_echo_hdr.timestamp_ms);
 
-    return (icmp_echo_packet_t *)icmp;
+    return echo;
 }
 
 /*
@@ -309,11 +305,6 @@ ICMP PACKET DETAILS
  */
    //We can calculate the payload size using a macro provided in packet.h. 
     uint16_t payload_size = ICMP_Payload_Size(icmp_packet);
-    // Calculate timestamp in human-readable form
-    time_t raw_time = (time_t)icmp_packet->icmp_echo_hdr.timestamp;
-    struct tm *time_info = localtime(&raw_time);
-    char formatted_time[50];
-    strftime(formatted_time, sizeof(formatted_time), "%Y-%m-%d %H:%M:%S", time_info);
 
     printf("ICMP Type %u\n", icmp_packet->icmp_echo_hdr.icmp_hdr.type);
     printf("ICMP PACKET DETAILS\n");
@@ -323,7 +314,7 @@ ICMP PACKET DETAILS
     printf("sequence: 0x%04x\n", icmp_packet->icmp_echo_hdr.sequence);
     printf("timestamp: %#x%x\n", icmp_packet->icmp_echo_hdr.timestamp, icmp_packet->icmp_echo_hdr.timestamp_ms);
     printf("payload: %u bytes \n", payload_size);
-    printf("ECHO Timestamp: TS = %s.%05u\n\n", formatted_time, icmp_packet->icmp_echo_hdr.timestamp_ms); 
+    printf("ECHO Timestamp: %s", get_ts_formatted(icmp_packet->icmp_echo_hdr.timestamp, icmp_packet->icmp_echo_hdr.timestamp_ms));
     // print payload
     print_icmp_payload(icmp_packet->icmp_payload, payload_size);
 }
