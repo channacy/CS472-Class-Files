@@ -225,18 +225,10 @@ icmp_packet_t *process_icmp(ip_packet_t *ip){
     //network byte order fields to host byte order fields using ntohs() and/or ntohl(). 
     icmp_packet_t *icmp = (icmp_packet_t *)ip;
     icmp->ip.eth_hdr.frame_type = ntohs(icmp->ip.eth_hdr.frame_type);
-    icmp->ip.ip_hdr.version_ihl = ntohs(icmp->ip.ip_hdr.version_ihl);
-    icmp->ip.ip_hdr.type_of_service = ntohs(icmp->ip.ip_hdr.type_of_service);
     icmp->ip.ip_hdr.total_length = ntohs(icmp->ip.ip_hdr.total_length);
     icmp->ip.ip_hdr.identification = ntohs(icmp->ip.ip_hdr.identification);
-    icmp->ip.ip_hdr.flags = ntohs(icmp->ip.ip_hdr.flags);
-    icmp->ip.ip_hdr.fragment_offset = ntohs(icmp->ip.ip_hdr.fragment_offset);
-    icmp->ip.ip_hdr.time_to_live = ntohs(icmp->ip.ip_hdr.time_to_live);
-    icmp->ip.ip_hdr.protocol = ntohs(icmp->ip.ip_hdr.protocol);
     icmp->ip.ip_hdr.header_checksum = ntohs(icmp->ip.ip_hdr.header_checksum);
     icmp->ip.eth_hdr.frame_type = ntohs(icmp->ip.eth_hdr.frame_type);
-    icmp->icmp_hdr.type = ntohs(icmp->icmp_hdr.type);
-    icmp->icmp_hdr.code = ntohs(icmp->icmp_hdr.code);
     icmp->icmp_hdr.checksum = ntohs(icmp->icmp_hdr.checksum);
     return icmp;
 }
@@ -254,6 +246,8 @@ bool is_icmp_echo(icmp_packet_t *icmp) {
     if (type == ICMP_ECHO_REQUEST || type == ICMP_ECHO_RESPONSE) {
         return true;
     }
+    printf("ICMP Type %u\n", icmp->icmp_hdr.type);
+    printf("Error: Expected an ECHO REQUEST or an ECHO response\n");
     return false;
 }
 
@@ -269,14 +263,8 @@ icmp_echo_packet_t *process_icmp_echo(icmp_packet_t *icmp){
     // ntohs() and/or ntohl().
     icmp_echo_packet_t *echo = (icmp_echo_packet_t *)icmp;
     echo->ip.eth_hdr.frame_type = ntohs(echo->ip.eth_hdr.frame_type);
-    echo->ip.ip_hdr.version_ihl = ntohs(echo->ip.ip_hdr.version_ihl);
-    echo->ip.ip_hdr.type_of_service = ntohs(echo->ip.ip_hdr.type_of_service);
     echo->ip.ip_hdr.total_length = ntohs(echo->ip.ip_hdr.total_length);
     echo->ip.ip_hdr.identification = ntohs(echo->ip.ip_hdr.identification);
-    echo->ip.ip_hdr.flags = ntohs(echo->ip.ip_hdr.flags);
-    echo->ip.ip_hdr.fragment_offset = ntohs(echo->ip.ip_hdr.fragment_offset);
-    echo->ip.ip_hdr.time_to_live = ntohs(echo->ip.ip_hdr.time_to_live);
-    echo->ip.ip_hdr.protocol = ntohs(echo->ip.ip_hdr.protocol);
     echo->ip.ip_hdr.header_checksum = ntohs(echo->ip.ip_hdr.header_checksum);
     echo->ip.eth_hdr.frame_type = ntohs(echo->ip.eth_hdr.frame_type);
 
@@ -284,10 +272,7 @@ icmp_echo_packet_t *process_icmp_echo(icmp_packet_t *icmp){
     echo->icmp_echo_hdr.sequence = ntohs(echo->icmp_echo_hdr.sequence);
     echo->icmp_echo_hdr.timestamp = ntohl(echo->icmp_echo_hdr.timestamp);
     echo->icmp_echo_hdr.timestamp_ms = ntohl(echo->icmp_echo_hdr.timestamp_ms);
-    echo->icmp_echo_hdr.icmp_hdr.type = ntohs(echo->icmp_echo_hdr.icmp_hdr.type);
-    echo->icmp_echo_hdr.icmp_hdr.code = ntohs(echo->icmp_echo_hdr.icmp_hdr.code);
-    echo->icmp_echo_hdr.icmp_hdr.checksum = ntohs(echo->icmp_echo_hdr.icmp_hdr.checksum);
-    
+
     return (icmp_echo_packet_t *)icmp;
 }
 
@@ -328,7 +313,8 @@ ICMP PACKET DETAILS
     struct tm *time_info = localtime(&raw_time);
     char formatted_time[50];
     strftime(formatted_time, sizeof(formatted_time), "%Y-%m-%d %H:%M:%S", time_info);
-
+    
+    printf("ICMP Type %u\n", icmp_packet->icmp_echo_hdr.icmp_hdr.type);
     printf("ICMP PACKET DETAILS\n");
     printf("type: 0x%02x\n", icmp_packet->ip.eth_hdr.frame_type);
     printf("checksum: 0x%04x\n", icmp_packet->icmp_echo_hdr.icmp_hdr.checksum);
