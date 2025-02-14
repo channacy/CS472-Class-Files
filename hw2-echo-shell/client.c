@@ -74,6 +74,10 @@ static void init_header(cs472_proto_header_t *header, int req_cmd, char *reqData
     header->cmd = req_cmd;
 
     //TODO: Setup other header fields, eg., header->ver, header->dir, header->atm, header->ay
+    header->ver = PROTO_VER_1;
+    header->dir = DIR_RECV;
+    header->atm = TERM_FALL;
+    header->ay = 2025;
 
     //switch based on the command
     switch(req_cmd){
@@ -108,7 +112,6 @@ static void start_client(cs472_proto_header_t *header, uint8_t *packet){
     int ret;
 
     /* Create local socket. */
-
     data_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (data_socket == -1) {
         perror("socket");
@@ -140,6 +143,24 @@ static void start_client(cs472_proto_header_t *header, uint8_t *packet){
      *      send() - recall that the formatted packet is passed in
      *      recv() - get the response back from the server
      */
+    if (connect(data_socket, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+        perror("Connection failed");
+        exit(1);
+    }
+
+    memcpy(send_buffer, header, sizeof(header));
+    memcpy(send_buffer, packet, sizeof(cs472_proto_header_t));
+
+    if (send(data_socket, send_buffer, BUFF_SZ, 0) < 0) {
+        perror("Send failed");
+        exit(1);
+    }
+
+    int bytes_received = recv(data_socket, recv_buffer,BUFF_SZ, 0);
+    if (bytes_received < 0) {
+        perror("Receive failed");
+        exit(1);
+    }
 
     //Now process what the server sent, here is some helper code
     cs472_proto_header_t *pcktPointer =  (cs472_proto_header_t *)recv_buffer;
@@ -152,7 +173,6 @@ static void start_client(cs472_proto_header_t *header, uint8_t *packet){
     printf("RECV FROM SERVER -> %s\n",msgPointer);
 
     close(data_socket);
-
 }
 
 

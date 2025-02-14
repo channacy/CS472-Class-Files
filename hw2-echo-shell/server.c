@@ -88,13 +88,17 @@ static void process_requests(int listen_socket){
          *      process_recv_packet(pcktPointer, recv_buffer, &msgPointer, &msgLen);
          * 
          */
-
-        //TODO:  DELETE THESE VARIABLES BELOW...
-        //SEE THE COMMENT ABOVE, THESE VARIABLES ARE JUST PUT IN HERE FOR NOW TO MAKE SURE
-        //THE STUB COMPILES
-        cs472_proto_header_t *pcktPointer;
+        char buffer[1024] = {0};
+        int bytes_received = recv(data_socket, recv_buffer,BUFF_SZ, 0);
+        if (bytes_received < 0) {
+            perror("Receive failed");
+            exit(1);
+        }
+        
+        cs472_proto_header_t *pcktPointer = (cs472_proto_header_t *)recv_buffer;
         uint8_t *msgPointer = NULL;
         uint8_t msgLen = 0;
+        process_recv_packet(pcktPointer, recv_buffer, &msgPointer, &msgLen);
 
         //Now lets setup to process the request and send a reply, create a copy of the header
         //also switch header direction
@@ -123,7 +127,13 @@ static void process_requests(int listen_socket){
          * TODO:  Now that we have processed things, send the response back to the 
          *        client - hint - its in the send_buffer. also dont forget to close
          *        the data_socket for the next request.
-         */       
+         */
+        if (send(data_socket, send_buffer, BUFF_SZ, 0) < 0) {
+            perror("Send failed");
+            exit(1);
+        }
+
+        close(data_socket);
     }
 }
 
