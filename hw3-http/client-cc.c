@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <ctype.h>
 
 #define  BUFF_SZ 1024
 
@@ -24,7 +25,6 @@ char *generate_cc_request(const char *host, int port, const char *path){
 	return req;
 }
 
-
 void print_usage(char *exe_name){
     fprintf(stderr, "Usage: %s <hostname> <port> <path...>\n", exe_name);
     fprintf(stderr, "Using default host %s, port %d  and path [\\]\n", DEFAULT_HOST, DEFAULT_PORT); 
@@ -33,6 +33,7 @@ void print_usage(char *exe_name){
 int process_request(const char *host, uint16_t port, char *resource){
     int sock;
     int total_bytes;
+    ssize_t bytes_recvd;
 
     sock = socket_connect(host, port);
     if(sock < 0) return sock;
@@ -56,6 +57,17 @@ int process_request(const char *host, uint16_t port, char *resource){
     //    from the server, so why you are looping around, make sure to
     //    accumulate all of the data received and return this value. 
     //---------------------------------------------------------------------------------
+    char *request_buff = generate_cc_request(host, port, resource); // generates request
+    if (send(sock, request_buff, strlen(request_buff), 0) < 0) {
+        perror("Send failed");
+        exit(1);
+    }
+
+    total_bytes = 0;
+    while ((bytes_recvd = recv(sock, recv_buff, sizeof(recv_buff), 0)) > 0){
+        printf("%.*s", (int)bytes_recvd, recv_buff);
+        total_bytes += bytes_recvd;
+    }
 
     close(sock);
     return total_bytes;
