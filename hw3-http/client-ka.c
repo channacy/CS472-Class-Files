@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 
 #define  BUFF_SZ            1024
 #define  MAX_REOPEN_TRIES   5
@@ -224,6 +225,9 @@ int submit_request(int sock, const char *host, uint16_t port, char *resource){
 }
 
 int main(int argc, char *argv[]){
+    clock_t start, end;
+    double total_time;
+
     int sock;
 
     const char *host = DEFAULT_HOST;
@@ -231,6 +235,7 @@ int main(int argc, char *argv[]){
     char       *resource = DEFAULT_PATH;
     int        remaining_args = 0;
 
+    start = clock();
     //YOU DONT NEED TO DO ANYTHING OR MODIFY ANYTHING IN MAIN().  MAKE SURE YOU UNDERSTAND
     //THE CODE HOWEVER
     sock = server_connect(host, port);
@@ -257,4 +262,7 @@ int main(int argc, char *argv[]){
     }
 
     server_disconnect(sock);
+    end = clock();
+    total_time = ((double) (end - start));
+    printf("Time taken: %f seconds\n", total_time);
 }

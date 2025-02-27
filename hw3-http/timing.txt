@@ -1,0 +1,26 @@
+Analysis of Duration of Runtime Between client-cc (connection close) and client-ka (connection keep alive)
+
+Results For Multiple Runs
+
+Seconds Taken to Run `make run-cc3`:
+5114.000000
+4412.000000
+3639.000000
+3924.000000 seconds
+2926.000000
+
+Seconds Taken to Run `make run-ka3`:
+1900.000000
+2336.000000
+1824.000000
+2167.000000
+1668.000000
+
+
+After running the tests, the Connection: Keep Alive client version ran faster with the fastest time being 
+1668 seconds whereas the fastest time for the Connection: Close client was 2926 seconds. All of the times
+belonging to the Connection: Keep Alive client were faster than 2926 seconds as well. Thus, using Keep Alive
+saw improved response time. Some of the reasons are the reduction of time as a result of less number of times
+needing to set up a TCP connection request each time data needs to 
+be sent over the server. The current connection can be leveraged to continue to request and send data for multiple
+instances. Also, the latency is reduced by avoiding any overhead caused by a three-way handshake needed for new connections.

@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 
 #define  BUFF_SZ 1024
 
@@ -74,6 +75,9 @@ int process_request(const char *host, uint16_t port, char *resource){
 }
 
 int main(int argc, char *argv[]){
+    clock_t start, end;
+    double total_time;
+
     int sock;
 
     const char *host = DEFAULT_HOST;
@@ -81,6 +85,7 @@ int main(int argc, char *argv[]){
     char       *resource = DEFAULT_PATH;
     int        remaining_args = 0;
 
+    start = clock();
     // Command line argument processing should be all setup, you should not need
     // to modify this code
     if(argc < 4){
@@ -103,4 +108,7 @@ int main(int argc, char *argv[]){
             process_request(host, port, resource);
         }
     }
+    end = clock();
+    total_time = ((double) (end - start));
+    printf("Time taken: %f seconds\n", total_time);
 }
