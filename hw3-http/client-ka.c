@@ -129,7 +129,7 @@ int submit_request(int sock, const char *host, uint16_t port, char *resource){
     int total_bytes = 0;    //used to accumulate the total number of bytes across all recv() calls
     
     //do the first recv
-    bytes_recvd = recv(sock, recv_buff, sizeof(recv_buff),0);
+    bytes_recvd = recv(sock, recv_buff, sizeof(recv_buff), 0);
     if(bytes_recvd < 0) {
         perror("initial receive failed");
         close(sock);
@@ -153,7 +153,7 @@ int submit_request(int sock, const char *host, uint16_t port, char *resource){
         close(sock);
         return -1;
     }
-
+    fprintf(stdout, "%.*s", bytes_recvd, recv_buff);
     //--------------------------------------------------------------------------------
     //TODO:  Get the conetent len
     //
@@ -172,8 +172,8 @@ int submit_request(int sock, const char *host, uint16_t port, char *resource){
     // what the following 2 lines of code do to track the amount of data received
     // from the server
     //
-    // YOUR ANSWER: The initial data tracks the amount of data recieved exlcuding the header. 
-    // The bytes_remaining represents the amount of bytes left to read.
+    // YOUR ANSWER: The initial data tracks the amount of data recieved excluding the header. 
+    // The bytes_remaining represents the amount of bytes left to read in the total content.
     //--------------------------------------------------------------------------------
     int initial_data =  bytes_recvd - header_len;
     int bytes_remaining = content_len - initial_data;
@@ -198,7 +198,6 @@ int submit_request(int sock, const char *host, uint16_t port, char *resource){
             return -1;
         }
         //You can uncomment out the fprintf() calls below to see what is going on
-
         fprintf(stdout, "%.*s", bytes_recvd, recv_buff);
         total_bytes += bytes_recvd;
         fprintf(stdout, "remaining %d, received %d\n", bytes_remaining, bytes_recvd);

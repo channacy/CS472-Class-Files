@@ -128,7 +128,7 @@ int get_http_content_len(char *http_buff, int http_header_len){
 
     char *next_header_line = http_buff;
     char *end_header_buff = http_buff + http_header_len;
-
+    
     while (next_header_line < end_header_buff){
         bzero(header_line,sizeof(header_line));
         sscanf(next_header_line,"%[^\r\n]s", header_line);
