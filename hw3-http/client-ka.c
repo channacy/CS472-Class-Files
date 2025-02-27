@@ -135,7 +135,7 @@ int submit_request(int sock, const char *host, uint16_t port, char *resource){
         close(sock);
         return -1;
     }
-
+    fprintf(stdout, "%.*s", bytes_recvd, recv_buff);
     //remember the first receive we just did has the HTTP header, and likely some body
     //data.  We need to determine how much data we expect
 
@@ -153,7 +153,6 @@ int submit_request(int sock, const char *host, uint16_t port, char *resource){
         close(sock);
         return -1;
     }
-    fprintf(stdout, "%.*s", bytes_recvd, recv_buff);
     //--------------------------------------------------------------------------------
     //TODO:  Get the conetent len
     //
@@ -172,8 +171,10 @@ int submit_request(int sock, const char *host, uint16_t port, char *resource){
     // what the following 2 lines of code do to track the amount of data received
     // from the server
     //
-    // YOUR ANSWER: The initial data tracks the amount of data recieved excluding the header. 
-    // The bytes_remaining represents the amount of bytes left to read in the total content.
+    // YOUR ANSWER: The initial data is the amount of data initially recieved during the first time
+    // the client recieves data from the server.
+    // The bytes_remaining represents the amount of bytes left to read in the total content and is used to
+    // determine when the client is finially finished recieving all of the data (in bytes).
     //--------------------------------------------------------------------------------
     int initial_data =  bytes_recvd - header_len;
     int bytes_remaining = content_len - initial_data;
